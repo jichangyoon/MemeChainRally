@@ -1,0 +1,480 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAMU Meme Contest - Web3 Voting Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'samu-yellow': '#F7DC6F',
+                        'samu-yellow-dark': '#F4D03F',
+                        'samu-gray': '#2C3E50',
+                        'samu-gray-light': '#34495E',
+                        'samu-brown': '#8B4513',
+                        'samu-brown-light': '#A0522D',
+                        'samu-orange': '#FF8C00',
+                        'samu-orange-light': '#FF6B35'
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #F7DC6F 0%, #F4D03F 50%, #FF8C00 100%);
+        }
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .wolf-logo {
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+        }
+        .voting-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .voting-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .pulse-animation {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-inter">
+    <!-- @COMPONENT: Header [wallet connection, logo, navigation] -->
+    <header class="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-md mx-auto px-4 py-3">
+            <div class="flex items-center justify-between">
+                <!-- SAMU Logo -->
+                <div class="flex items-center space-x-2">
+                    <div class="w-10 h-10 rounded-full bg-samu-yellow flex items-center justify-center wolf-logo">
+                        <img src="data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23F7DC6F'/%3E%3Cpath d='M30 45 L35 35 L40 40 L45 35 L50 45 L55 35 L60 40 L65 35 L70 45 L60 55 L50 50 L40 55 Z' fill='%232C3E50'/%3E%3Ccircle cx='42' cy='42' r='3' fill='%23FF8C00'/%3E%3Ccircle cx='58' cy='42' r='3' fill='%23FF8C00'/%3E%3Cpath d='M45 50 L50 55 L55 50' stroke='%232C3E50' stroke-width='2' fill='none'/%3E%3C/svg%3E" alt="SAMU Wolf" class="w-8 h-8">
+                    </div>
+                    <span class="text-lg font-bold text-samu-gray">SAMU</span>
+                </div>
+                
+                <!-- Wallet Connection Button -->
+                <button id="walletConnect" class="bg-samu-yellow hover:bg-samu-yellow-dark text-samu-gray font-semibold px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <span data-mock="true">Connect</span>
+                </button>
+            </div>
+        </div>
+    </header>
+    <!-- @END_COMPONENT: Header -->
+
+    <!-- @COMPONENT: WalletStatus [token balance, NFT holdings display] -->
+    <div id="walletStatus" class="hidden max-w-md mx-auto px-4 py-3 bg-gradient-to-r from-samu-yellow to-samu-orange text-samu-gray">
+        <div class="flex items-center justify-between text-sm">
+            <div class="flex items-center space-x-2">
+                <span class="font-medium">Connected:</span>
+                <span class="font-mono text-xs" data-bind="user.walletAddress" data-mock="true">7x8k...9mPq</span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="text-center">
+                    <div class="font-bold" data-bind="user.samuBalance" data-mock="true">1,247</div>
+                    <div class="text-xs opacity-75">SAMU</div>
+                </div>
+                <div class="text-center">
+                    <div class="font-bold" data-bind="user.nftCount" data-mock="true">3</div>
+                    <div class="text-xs opacity-75">NFTs</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: WalletStatus -->
+
+    <!-- @COMPONENT: NavigationTabs [contest tabs, upload button] -->
+    <nav class="max-w-md mx-auto px-4 py-3 bg-white border-b border-gray-200">
+        <div class="flex items-center space-x-1">
+            <button class="flex-1 py-2 px-3 rounded-lg bg-samu-yellow text-samu-gray font-medium text-sm">
+                Contest
+            </button>
+            <button class="flex-1 py-2 px-3 rounded-lg text-gray-600 hover:text-samu-gray font-medium text-sm transition-colors duration-200">
+                Leaderboard
+            </button>
+            <button class="flex-1 py-2 px-3 rounded-lg text-gray-600 hover:text-samu-gray font-medium text-sm transition-colors duration-200">
+                My Memes
+            </button>
+        </div>
+    </nav>
+    <!-- @END_COMPONENT: NavigationTabs -->
+
+    <main class="max-w-md mx-auto px-4 pb-20">
+        <!-- @COMPONENT: ContestHeader [contest info, timer, prize pool] -->
+        <div class="py-4">
+            <div class="bg-white rounded-xl p-4 card-shadow">
+                <div class="flex items-center justify-between mb-3">
+                    <h1 class="text-xl font-bold text-samu-gray">SAMU Meme Contest</h1>
+                    <div class="bg-samu-orange text-white px-2 py-1 rounded-full text-xs font-medium">
+                        Live
+                    </div>
+                </div>
+                <p class="text-gray-600 text-sm mb-3">
+                    Submit your best SAMU memes and vote using your token holdings. The most voted meme wins!
+                </p>
+                <div class="grid grid-cols-3 gap-3 text-center">
+                    <div class="bg-gray-50 rounded-lg p-2">
+                        <div class="text-lg font-bold text-samu-gray" data-mock="true">2d 14h</div>
+                        <div class="text-xs text-gray-500">Time Left</div>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-2">
+                        <div class="text-lg font-bold text-samu-orange" data-mock="true">10,000</div>
+                        <div class="text-xs text-gray-500">Prize Pool</div>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-2">
+                        <div class="text-lg font-bold text-samu-brown" data-mock="true">47</div>
+                        <div class="text-xs text-gray-500">Entries</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: ContestHeader -->
+
+        <!-- @COMPONENT: UploadSection [meme upload interface] -->
+        <div class="py-2">
+            <div class="bg-white rounded-xl p-4 card-shadow">
+                <h2 class="text-lg font-semibold text-samu-gray mb-3">Submit Your Meme</h2>
+                <div class="space-y-3">
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-samu-yellow transition-colors duration-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                        <p class="text-gray-500 text-sm mb-2">Drag & drop your meme or click to browse</p>
+                        <button class="bg-samu-yellow hover:bg-samu-yellow-dark text-samu-gray font-medium px-4 py-2 rounded-lg transition-colors duration-200">
+                            Choose File
+                        </button>
+                        <input type="file" class="hidden" accept="image/*" data-implementation="Handle file upload with preview">
+                    </div>
+                    <input type="text" placeholder="Meme title (optional)" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-samu-yellow focus:border-transparent">
+                    <textarea placeholder="Description (optional)" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-samu-yellow focus:border-transparent resize-none"></textarea>
+                    <button class="w-full bg-samu-orange hover:bg-samu-orange-light text-white font-semibold py-3 rounded-lg transition-colors duration-200" data-event="click:handleSubmit" data-implementation="Validate and submit meme to blockchain">
+                        Submit Meme
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: UploadSection -->
+
+        <!-- @COMPONENT: MemeGallery [voting interface, meme cards] -->
+        <div class="py-2">
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="text-lg font-semibold text-samu-gray">Contest Entries</h2>
+                <select class="text-sm border border-gray-300 rounded-lg px-3 py-1 focus:outline-none focus:ring-2 focus:ring-samu-yellow">
+                    <option>Most Votes</option>
+                    <option>Latest</option>
+                    <option>Trending</option>
+                </select>
+            </div>
+            
+            <!-- @MAP: memes.map(meme => ( -->
+            <div class="space-y-4">
+                <!-- Meme Card 1 -->
+                <div class="bg-white rounded-xl overflow-hidden card-shadow voting-card">
+                    <!-- Meme with Wolf theme placeholder -->
+                    <div class="aspect-square bg-samu-yellow flex items-center justify-center">
+                        <div class="text-center">
+                            <div class="w-24 h-24 mx-auto mb-4 bg-samu-gray rounded-full flex items-center justify-center">
+                                <img src="data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 40 L35 30 L40 35 L45 30 L50 40 L55 30 L60 35 L65 30 L70 40 L60 50 L50 45 L40 50 Z' fill='%23F7DC6F'/%3E%3Ccircle cx='42' cy='37' r='2' fill='%23FF8C00'/%3E%3Ccircle cx='58' cy='37' r='2' fill='%23FF8C00'/%3E%3Cpath d='M45 45 L50 50 L55 45' stroke='%23F7DC6F' stroke-width='2' fill='none'/%3E%3C/svg%3E" alt="SAMU Meme" class="w-16 h-16">
+                            </div>
+                            <h3 class="text-lg font-bold text-samu-gray" data-mock="true">HODL STRONG</h3>
+                            <p class="text-sm text-samu-brown" data-mock="true">When dip but you trust SAMU</p>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-6 h-6 bg-samu-yellow rounded-full flex items-center justify-center">
+                                    <span class="text-xs font-bold text-samu-gray">W</span>
+                                </div>
+                                <span class="text-sm text-gray-600" data-bind="meme.author" data-mock="true">wolf_master</span>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-lg font-bold text-samu-orange" data-bind="meme.votes" data-mock="true">1,247</div>
+                                <div class="text-xs text-gray-500">votes</div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex space-x-2">
+                            <button class="flex-1 bg-samu-yellow hover:bg-samu-yellow-dark text-samu-gray font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2" data-event="click:handleVote" data-implementation="Submit weighted vote based on token holdings">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                                </svg>
+                                <span>Vote</span>
+                            </button>
+                            <button class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Meme Card 2 -->
+                <div class="bg-white rounded-xl overflow-hidden card-shadow voting-card">
+                    <div class="aspect-square bg-gradient-to-br from-samu-brown to-samu-orange flex items-center justify-center">
+                        <div class="text-center text-white">
+                            <div class="w-24 h-24 mx-auto mb-4 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                                <img src="data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M25 45 L30 35 L35 40 L40 35 L45 45 L50 35 L55 40 L60 35 L65 45 L75 45 L70 55 L50 50 L30 55 Z' fill='%23FFFFFF'/%3E%3Ccircle cx='40' cy='42' r='2' fill='%23FF8C00'/%3E%3Ccircle cx='60' cy='42' r='2' fill='%23FF8C00'/%3E%3Cpath d='M42 50 L50 55 L58 50' stroke='%23FF8C00' stroke-width='2' fill='none'/%3E%3C/svg%3E" alt="SAMU Meme" class="w-16 h-16">
+                            </div>
+                            <h3 class="text-lg font-bold" data-mock="true">TO THE MOON</h3>
+                            <p class="text-sm opacity-75" data-mock="true">SAMU pack assembling</p>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-6 h-6 bg-samu-orange rounded-full flex items-center justify-center">
+                                    <span class="text-xs font-bold text-white">M</span>
+                                </div>
+                                <span class="text-sm text-gray-600" data-bind="meme.author" data-mock="true">moon_wolf</span>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-lg font-bold text-samu-orange" data-bind="meme.votes" data-mock="true">892</div>
+                                <div class="text-xs text-gray-500">votes</div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex space-x-2">
+                            <button class="flex-1 bg-samu-yellow hover:bg-samu-yellow-dark text-samu-gray font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2" data-event="click:handleVote">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                                </svg>
+                                <span>Vote</span>
+                            </button>
+                            <button class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Meme Card 3 -->
+                <div class="bg-white rounded-xl overflow-hidden card-shadow voting-card">
+                    <div class="aspect-square bg-gradient-to-br from-samu-gray to-samu-gray-light flex items-center justify-center">
+                        <div class="text-center text-samu-yellow">
+                            <div class="w-24 h-24 mx-auto mb-4 bg-samu-yellow bg-opacity-20 rounded-full flex items-center justify-center">
+                                <img src="data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M35 45 L40 35 L45 40 L50 35 L55 45 L60 35 L65 40 L70 35 L75 45 L65 55 L50 50 L35 55 Z' fill='%23F7DC6F'/%3E%3Ccircle cx='45' cy='42' r='2' fill='%23FF8C00'/%3E%3Ccircle cx='55' cy='42' r='2' fill='%23FF8C00'/%3E%3Cpath d='M47 50 L50 53 L53 50' stroke='%23FF8C00' stroke-width='2' fill='none'/%3E%3C/svg%3E" alt="SAMU Meme" class="w-16 h-16">
+                            </div>
+                            <h3 class="text-lg font-bold" data-mock="true">DIAMOND PAWS</h3>
+                            <p class="text-sm opacity-75" data-mock="true">Never selling my SAMU</p>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-6 h-6 bg-samu-brown rounded-full flex items-center justify-center">
+                                    <span class="text-xs font-bold text-white">D</span>
+                                </div>
+                                <span class="text-sm text-gray-600" data-bind="meme.author" data-mock="true">diamond_wolf</span>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-lg font-bold text-samu-orange" data-bind="meme.votes" data-mock="true">654</div>
+                                <div class="text-xs text-gray-500">votes</div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex space-x-2">
+                            <button class="flex-1 bg-samu-yellow hover:bg-samu-yellow-dark text-samu-gray font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2" data-event="click:handleVote">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                                </svg>
+                                <span>Vote</span>
+                            </button>
+                            <button class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- @END_MAP )) -->
+            
+            <!-- Load More Button -->
+            <div class="text-center mt-6">
+                <button class="bg-gray-100 hover:bg-gray-200 text-gray-600 font-medium py-3 px-6 rounded-lg transition-colors duration-200">
+                    Load More Memes
+                </button>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: MemeGallery -->
+    </main>
+
+    <!-- @COMPONENT: LoadingModal [blockchain interaction feedback] -->
+    <div id="loadingModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-6 max-w-sm mx-4 text-center">
+            <div class="w-16 h-16 mx-auto mb-4 bg-samu-yellow rounded-full flex items-center justify-center">
+                <div class="w-8 h-8 border-3 border-samu-gray border-t-transparent rounded-full animate-spin"></div>
+            </div>
+            <h3 class="text-lg font-semibold text-samu-gray mb-2">Processing Transaction</h3>
+            <p class="text-gray-600 text-sm">Please confirm the transaction in your Phantom wallet...</p>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: LoadingModal -->
+
+    <!-- @COMPONENT: VotingModal [vote confirmation dialog] -->
+    <div id="votingModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-6 max-w-sm mx-4">
+            <h3 class="text-lg font-semibold text-samu-gray mb-4">Confirm Your Vote</h3>
+            <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm text-gray-600">Your voting power:</span>
+                    <span class="font-semibold text-samu-orange" data-bind="user.votingPower" data-mock="true">1,247</span>
+                </div>
+                <div class="text-xs text-gray-500">
+                    Based on SAMU tokens (1,247) + NFT multiplier (1.0x)
+                </div>
+            </div>
+            <div class="flex space-x-3">
+                <button id="cancelVote" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-4 rounded-lg transition-colors duration-200">
+                    Cancel
+                </button>
+                <button id="confirmVote" class="flex-1 bg-samu-orange hover:bg-samu-orange-light text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">
+                    Confirm Vote
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: VotingModal -->
+
+    <script>
+        (function() {
+            // @STATE: isWalletConnected:boolean = false
+            // @STATE: userWallet:string = null
+            // @STATE: userTokens:number = 0
+            // @STATE: userNFTs:number = 0
+            
+            let isWalletConnected = false;
+            let userWallet = null;
+            let userTokens = 0;
+            let userNFTs = 0;
+
+            // Wallet Connection Handler
+            const walletConnectBtn = document.getElementById('walletConnect');
+            const walletStatus = document.getElementById('walletStatus');
+            const loadingModal = document.getElementById('loadingModal');
+            const votingModal = document.getElementById('votingModal');
+
+            walletConnectBtn.addEventListener('click', async function() {
+                if (!isWalletConnected) {
+                    // TODO: Implement Phantom wallet connection
+                    showLoading();
+                    
+                    // Simulate wallet connection
+                    setTimeout(() => {
+                        hideLoading();
+                        connectWallet();
+                    }, 2000);
+                } else {
+                    disconnectWallet();
+                }
+            });
+
+            function connectWallet() {
+                isWalletConnected = true;
+                userWallet = '7x8k...9mPq'; // Mock wallet address
+                userTokens = 1247; // Mock SAMU token balance
+                userNFTs = 3; // Mock NFT count
+                
+                walletConnectBtn.innerHTML = '<span class="font-mono text-xs">7x8k...9mPq</span>';
+                walletConnectBtn.classList.add('bg-green-100', 'text-green-700');
+                walletConnectBtn.classList.remove('bg-samu-yellow', 'text-samu-gray');
+                walletStatus.classList.remove('hidden');
+            }
+
+            function disconnectWallet() {
+                isWalletConnected = false;
+                userWallet = null;
+                userTokens = 0;
+                userNFTs = 0;
+                
+                walletConnectBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg><span>Connect</span>';
+                walletConnectBtn.classList.remove('bg-green-100', 'text-green-700');
+                walletConnectBtn.classList.add('bg-samu-yellow', 'text-samu-gray');
+                walletStatus.classList.add('hidden');
+            }
+
+            // Voting Handler
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('button') && e.target.closest('button').textContent.includes('Vote')) {
+                    if (!isWalletConnected) {
+                        alert('Please connect your wallet first!');
+                        return;
+                    }
+                    votingModal.classList.remove('hidden');
+                }
+            });
+
+            // Modal Handlers
+            document.getElementById('cancelVote').addEventListener('click', function() {
+                votingModal.classList.add('hidden');
+            });
+
+            document.getElementById('confirmVote').addEventListener('click', function() {
+                votingModal.classList.add('hidden');
+                showLoading();
+                
+                // TODO: Implement blockchain voting transaction
+                setTimeout(() => {
+                    hideLoading();
+                    // Update vote count in UI
+                    alert('Vote submitted successfully!');
+                }, 3000);
+            });
+
+            function showLoading() {
+                loadingModal.classList.remove('hidden');
+            }
+
+            function hideLoading() {
+                loadingModal.classList.add('hidden');
+            }
+
+            // Close modals when clicking outside
+            [loadingModal, votingModal].forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        modal.classList.add('hidden');
+                    }
+                });
+            });
+
+            // File Upload Handler
+            document.querySelector('input[type="file"]').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    // TODO: Implement file preview and upload to IPFS
+                    console.log('File selected:', file.name);
+                }
+            });
+
+            // @FUNCTIONALITY: This app should implement Web3 wallet connection via Phantom
+            // @FUNCTIONALITY: Token-weighted voting system based on SAMU holdings
+            // @FUNCTIONALITY: IPFS integration for meme storage
+            // @FUNCTIONALITY: Smart contract interaction for vote recording
+        })();
+    </script>
+</body>
+</html>

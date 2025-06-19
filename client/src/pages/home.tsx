@@ -6,7 +6,7 @@ import { UploadForm } from "@/components/upload-form";
 import { MemeCard } from "@/components/meme-card";
 import { Leaderboard } from "@/components/leaderboard";
 import { GoodsShop } from "@/components/goods-shop";
-import { useWallet } from "@/hooks/use-wallet";
+import { useWallet } from "@/hooks/use-wallet-ultra-stable";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -15,19 +15,39 @@ import type { Meme } from "@shared/schema";
 import samuLogo1 from "@assets/photo_2025-05-26_08-40-22_1750170004880.jpg";
 
 export default function Home() {
-  const { isConnected, walletAddress, samuBalance, balanceStatus, updateBalances, isConnecting } = useWallet();
+  // State hooks must be called first and in consistent order
+  const [sortBy, setSortBy] = useState("votes");
+  const [currentTab, setCurrentTab] = useState("contest");
+  const [renderKey, setRenderKey] = useState(0);
+  
+  // Custom hooks after state hooks
+  const { isConnected, walletAddress, samuBalance, balanceStatus, isConnecting } = useWallet();
+  
+  // Force re-render when balance updates
+  useEffect(() => {
+    if (samuBalance > 0) {
+      setRenderKey(prev => prev + 1);
+    }
+  }, [samuBalance]);
   
   // Debug log
   console.log('Wallet state:', { isConnected, walletAddress, samuBalance, balanceStatus });
   
-  // Auto-refresh balance when wallet connects
+  // URL 파라미터에서 팬텀 콜백 데이터 처리
   useEffect(() => {
-    if (isConnected && samuBalance === 0) {
-      updateBalances();
+    const urlParams = new URLSearchParams(window.location.search);
+    const phantomData = urlParams.get('phantom_encryption_public_key');
+    const errorCode = urlParams.get('errorCode');
+    
+    if (phantomData) {
+      console.log('팬텀 콜백 데이터 수신:', phantomData);
+      // 팬텀에서 돌아온 경우 메인 페이지로 리다이렉트
+      window.history.replaceState({}, document.title, '/');
+    } else if (errorCode) {
+      console.log('팬텀 연결 오류:', errorCode);
+      window.history.replaceState({}, document.title, '/');
     }
-  }, [isConnected, updateBalances]);
-  const [sortBy, setSortBy] = useState("votes");
-  const [currentTab, setCurrentTab] = useState("contest");
+  }, []);
 
   const { data: memes = [], isLoading, refetch } = useQuery<Meme[]>({
     queryKey: ["/api/memes"],
@@ -78,7 +98,9 @@ export default function Home() {
             <div className="text-center">
               <div className="bg-gradient-to-r from-yellow-100 to-orange-100 dark:from-yellow-900/20 dark:to-orange-900/20 p-4 rounded-lg border-2 border-[hsl(30,100%,50%)]">
                 <div className="font-bold text-2xl text-[hsl(30,100%,50%)] mb-1">
-                  {balanceStatus === 'loading' ? 'Checking...' : samuBalance.toLocaleString()}
+                  {balanceStatus === 'loading' ? 'Checking...' : 
+                   balanceStatus === 'success' ? samuBalance.toLocaleString() : 
+                   balanceStatus === 'error' ? 'Error' : '0'}
                 </div>
                 <div className="text-sm font-medium opacity-75 mb-2">SAMU Tokens</div>
                 
@@ -101,27 +123,15 @@ export default function Home() {
                         ? 'Token query failed - Network issue' 
                         : 'No SAMU tokens found'}
                     </div>
-                    <Button 
-                      onClick={updateBalances}
-                      size="sm"
-                      variant="outline"
-                      className="text-xs"
-                    >
-                      Try Again
-                    </Button>
+                    <div className="text-xs text-amber-600">
+                      Refresh the page to retry
+                    </div>
                   </div>
                 )}
                 
                 {balanceStatus === 'idle' && (
-                  <div className="mt-2">
-                    <Button 
-                      onClick={updateBalances}
-                      size="sm"
-                      variant="outline"
-                      className="text-xs"
-                    >
-                      Check Token Balance
-                    </Button>
+                  <div className="mt-2 text-xs text-gray-500">
+                    Connect wallet to see SAMU balance
                   </div>
                 )}
               </div>

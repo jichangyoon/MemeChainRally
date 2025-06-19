@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAMU Meme Contest - Web3 Community</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'samu-yellow': '#F4D03F',
+                        'samu-yellow-light': '#F7DC6F', 
+                        'samu-orange': '#E67E22',
+                        'samu-orange-light': '#F39C12',
+                        'samu-brown': '#8B4513',
+                        'samu-brown-light': '#A0522D',
+                        'samu-gray': '#2C3E50',
+                        'samu-gray-light': '#34495E'
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        };
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 font-inter">
+    <!-- @COMPONENT: Header [sticky header with wallet connection] -->
+    <header class="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-100">
+        <div class="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
+            <!-- SAMU Logo (using uploaded wolf image) -->
+            <div class="flex items-center space-x-2">
+                <!-- Wolf logo with SAMU branding colors as background -->
+                <div class="w-10 h-10 bg-samu-yellow rounded-full flex items-center justify-center p-1">
+                    <div class="w-8 h-8 bg-samu-gray rounded-full flex items-center justify-center">
+                        <i class="fas fa-wolf-pack-battalion text-samu-yellow text-sm"></i>
+                    </div>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-samu-gray">SAMU</h1>
+                    <p class="text-xs text-gray-500">Meme Contest</p>
+                </div>
+            </div>
+            
+            <!-- Wallet Connection Button -->
+            <button id="connectWallet" class="bg-gradient-to-r from-samu-yellow to-samu-orange text-samu-gray px-4 py-2 rounded-lg font-semibold text-sm shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95" data-event="click:connectPhantomWallet">
+                <i class="fas fa-wallet mr-2"></i>
+                <span data-bind="walletStatus">Connect</span>
+            </button>
+        </div>
+    </header>
+    <!-- @END_COMPONENT: Header -->
+
+    <!-- @COMPONENT: WalletInfo [displays connected wallet info and token balance] -->
+    <div id="walletInfo" class="hidden max-w-md mx-auto px-4 py-3 bg-gradient-to-r from-samu-yellow/10 to-samu-orange/10 border-b border-samu-yellow/20">
+        <div class="flex items-center justify-between text-sm">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-user-circle text-samu-orange"></i>
+                <span class="text-samu-gray font-medium" data-bind="walletAddress" data-mock="true">9WzD...K7mF</span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="text-right">
+                    <p class="text-xs text-gray-600">SAMU Balance</p>
+                    <p class="font-semibold text-samu-gray" data-bind="samuBalance" data-mock="true">1,250 SAMU</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-xs text-gray-600">NFTs</p>
+                    <p class="font-semibold text-samu-orange" data-bind="nftCount" data-mock="true">3 NFTs</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: WalletInfo -->
+
+    <!-- @COMPONENT: TabNavigation [contest sections navigation] -->
+    <nav class="max-w-md mx-auto px-4 py-3 bg-white border-b border-gray-100">
+        <div class="flex space-x-1 bg-gray-100 rounded-lg p-1">
+            <button class="tab-btn active flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all duration-200" data-tab="gallery">
+                <i class="fas fa-images mr-2"></i>Gallery
+            </button>
+            <button class="tab-btn flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all duration-200" data-tab="upload">
+                <i class="fas fa-plus mr-2"></i>Submit
+            </button>
+            <button class="tab-btn flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all duration-200" data-tab="leaderboard">
+                <i class="fas fa-trophy mr-2"></i>Leaders
+            </button>
+        </div>
+    </nav>
+    <!-- @END_COMPONENT: TabNavigation -->
+
+    <!-- @COMPONENT: ContestInfo [contest details and rules] -->
+    <div class="max-w-md mx-auto px-4 py-4 bg-gradient-to-r from-samu-yellow/5 to-samu-orange/5">
+        <div class="bg-white rounded-xl p-4 shadow-sm border border-samu-yellow/20">
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="text-lg font-bold text-samu-gray">🎭 Monthly Meme Contest</h2>
+                <span class="bg-samu-orange text-white px-2 py-1 rounded-full text-xs font-semibold">LIVE</span>
+            </div>
+            <div class="space-y-2 text-sm text-gray-600">
+                <div class="flex items-center justify-between">
+                    <span>⏰ Time Left:</span>
+                    <span class="font-semibold text-samu-orange" data-mock="true">7 days 14h 32m</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span>🏆 Prize Pool:</span>
+                    <span class="font-semibold text-samu-gray" data-mock="true">50,000 SAMU</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span>📊 Total Submissions:</span>
+                    <span class="font-semibold text-samu-gray" data-mock="true">127 memes</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: ContestInfo -->
+
+    <!-- @COMPONENT: TabContent [main content area] -->
+    <main class="max-w-md mx-auto min-h-screen">
+        
+        <!-- Gallery Tab -->
+        <div id="gallery-tab" class="tab-content active px-4 py-4">
+            <!-- @MAP: memes.map(meme => ( -->
+            <div class="space-y-4">
+                
+                <!-- Meme Card 1 -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden" data-mock="true">
+                    <div class="flex items-center justify-between p-4 pb-3">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-gradient-to-r from-samu-yellow to-samu-orange rounded-full flex items-center justify-center">
+                                <i class="fas fa-user text-samu-gray text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-samu-gray text-sm" data-bind="meme.author">CryptoWolf97</p>
+                                <p class="text-xs text-gray-500">2 hours ago</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-1 text-xs">
+                            <i class="fas fa-fire text-samu-orange"></i>
+                            <span class="font-semibold text-samu-gray" data-bind="meme.votes">1,234</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Meme doge-style illustration featuring cryptocurrency theme -->
+                    <img src="https://images.unsplash.com/photo-1518623001395-125242310d0c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600" 
+                         alt="Funny crypto meme illustration" 
+                         class="w-full h-64 object-cover" data-mock-image="true" />
+                    
+                    <div class="p-4">
+                        <p class="text-sm text-gray-700 mb-3" data-bind="meme.caption" data-mock="true">When SAMU hits the moon but you're still holding 🚀🐺</p>
+                        
+                        <!-- Voting Interface -->
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <button class="flex items-center space-x-2 bg-gradient-to-r from-samu-yellow to-samu-orange text-samu-gray px-4 py-2 rounded-lg font-semibold text-sm shadow-sm hover:shadow-md transition-all duration-200 active:scale-95" data-event="click:voteForMeme">
+                                    <i class="fas fa-thumbs-up"></i>
+                                    <span>Vote</span>
+                                </button>
+                                <button class="flex items-center space-x-2 text-gray-500 hover:text-samu-orange transition-colors duration-200" data-event="click:shareMeme">
+                                    <i class="fas fa-share"></i>
+                                </button>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-xs text-gray-500">Voting Power</p>
+                                <p class="text-sm font-semibold text-samu-orange" data-bind="user.votingPower" data-mock="true">2.5x</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Meme Card 2 -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden" data-mock="true">
+                    <div class="flex items-center justify-between p-4 pb-3">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-gradient-to-r from-samu-orange to-samu-brown rounded-full flex items-center justify-center">
+                                <i class="fas fa-user text-white text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-samu-gray text-sm" data-bind="meme.author">MoonHowler</p>
+                                <p class="text-xs text-gray-500">4 hours ago</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-1 text-xs">
+                            <i class="fas fa-fire text-samu-orange"></i>
+                            <span class="font-semibold text-samu-gray" data-bind="meme.votes">956</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Humorous cat meme with crypto trading theme -->
+                    <img src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600" 
+                         alt="Funny crypto trading meme with cat" 
+                         class="w-full h-64 object-cover" data-mock-image="true" />
+                    
+                    <div class="p-4">
+                        <p class="text-sm text-gray-700 mb-3" data-bind="meme.caption" data-mock="true">POV: You bought the dip but it keeps dipping 😅</p>
+                        
+                        <!-- Voting Interface -->
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <button class="flex items-center space-x-2 bg-gradient-to-r from-samu-yellow to-samu-orange text-samu-gray px-4 py-2 rounded-lg font-semibold text-sm shadow-sm hover:shadow-md transition-all duration-200 active:scale-95" data-event="click:voteForMeme">
+                                    <i class="fas fa-thumbs-up"></i>
+                                    <span>Vote</span>
+                                </button>
+                                <button class="flex items-center space-x-2 text-gray-500 hover:text-samu-orange transition-colors duration-200" data-event="click:shareMeme">
+                                    <i class="fas fa-share"></i>
+                                </button>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-xs text-gray-500">Voting Power</p>
+                                <p class="text-sm font-semibold text-samu-orange" data-bind="user.votingPower" data-mock="true">2.5x</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Meme Card 3 -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden" data-mock="true">
+                    <div class="flex items-center justify-between p-4 pb-3">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-gradient-to-r from-samu-brown to-samu-gray rounded-full flex items-center justify-center">
+                                <i class="fas fa-user text-samu-yellow text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-samu-gray text-sm" data-bind="meme.author">DiamondPaws</p>
+                                <p class="text-xs text-gray-500">6 hours ago</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-1 text-xs">
+                            <i class="fas fa-fire text-samu-orange"></i>
+                            <span class="font-semibold text-samu-gray" data-bind="meme.votes">2,105</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Funny dog meme about cryptocurrency gains -->
+                    <img src="https://images.unsplash.com/photo-1552053831-71594a27632d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600" 
+                         alt="Excited dog meme about crypto gains" 
+                         class="w-full h-64 object-cover" data-mock-image="true" />
+                    
+                    <div class="p-4">
+                        <p class="text-sm text-gray-700 mb-3" data-bind="meme.caption" data-mock="true">When your portfolio is finally green after 6 months 🚀</p>
+                        
+                        <!-- Voting Interface -->
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <button class="flex items-center space-x-2 bg-gradient-to-r from-samu-yellow to-samu-orange text-samu-gray px-4 py-2 rounded-lg font-semibold text-sm shadow-sm hover:shadow-md transition-all duration-200 active:scale-95" data-event="click:voteForMeme">
+                                    <i class="fas fa-thumbs-up"></i>
+                                    <span>Vote</span>
+                                </button>
+                                <button class="flex items-center space-x-2 text-gray-500 hover:text-samu-orange transition-colors duration-200" data-event="click:shareMeme">
+                                    <i class="fas fa-share"></i>
+                                </button>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-xs text-gray-500">Voting Power</p>
+                                <p class="text-sm font-semibold text-samu-orange" data-bind="user.votingPower" data-mock="true">2.5x</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            <!-- @END_MAP )) -->
+        </div>
+
+        <!-- Upload Tab -->
+        <div id="upload-tab" class="tab-content hidden px-4 py-6">
+            <!-- @COMPONENT: MemeUpload [meme submission form] -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <h2 class="text-xl font-bold text-samu-gray mb-6 text-center">Submit Your Meme</h2>
+                
+                <!-- Upload Area -->
+                <div class="mb-6">
+                    <div id="upload-area" class="border-2 border-dashed border-samu-yellow/50 rounded-xl p-8 text-center bg-samu-yellow/5 hover:bg-samu-yellow/10 transition-colors duration-200 cursor-pointer" data-implementation="File upload with drag-and-drop functionality">
+                        <i class="fas fa-cloud-upload-alt text-4xl text-samu-orange mb-4"></i>
+                        <p class="text-lg font-semibold text-samu-gray mb-2">Upload Your Meme</p>
+                        <p class="text-sm text-gray-500 mb-4">Drag and drop or click to select</p>
+                        <p class="text-xs text-gray-400">PNG, JPG, GIF up to 10MB</p>
+                        <input type="file" id="meme-upload" accept="image/*" class="hidden" data-event="change:handleFileUpload" />
+                    </div>
+                </div>
+
+                <!-- Image Preview -->
+                <div id="image-preview" class="hidden mb-6">
+                    <img id="preview-img" src="" alt="Preview" class="w-full max-h-64 object-contain rounded-lg border border-gray-200" />
+                    <button class="mt-2 text-sm text-red-500 hover:text-red-700" data-event="click:removeImage">
+                        <i class="fas fa-times mr-1"></i>Remove
+                    </button>
+                </div>
+
+                <!-- Caption Input -->
+                <div class="mb-6">
+                    <label for="meme-caption" class="block text-sm font-semibold text-samu-gray mb-2">Caption</label>
+                    <textarea id="meme-caption" rows="3" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-samu-yellow focus:border-transparent resize-none" placeholder="Add a funny caption for your meme..." data-bind="memeForm.caption"></textarea>
+                </div>
+
+                <!-- Contest Rules -->
+                <div class="mb-6 p-4 bg-samu-yellow/10 rounded-lg border border-samu-yellow/20">
+                    <h3 class="font-semibold text-samu-gray mb-2 flex items-center">
+                        <i class="fas fa-info-circle text-samu-orange mr-2"></i>Contest Rules
+                    </h3>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>• Original content only (no reposts)</li>
+                        <li>• Keep it family-friendly</li>
+                        <li>• SAMU/crypto theme preferred</li>
+                        <li>• Maximum 1 submission per day</li>
+                    </ul>
+                </div>
+
+                <!-- Submit Button -->
+                <button id="submit-meme" class="w-full bg-gradient-to-r from-samu-yellow to-samu-orange text-samu-gray py-4 rounded-lg font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed" data-event="click:submitMeme" disabled>
+                    <i class="fas fa-upload mr-2"></i>
+                    Submit to Contest
+                </button>
+
+                <!-- Submission Info -->
+                <div class="mt-4 text-center text-sm text-gray-500">
+                    <p>Submission requires <span class="font-semibold text-samu-orange">50 SAMU tokens</span></p>
+                </div>
+            </div>
+            <!-- @END_COMPONENT: MemeUpload -->
+        </div>
+
+        <!-- Leaderboard Tab -->
+        <div id="leaderboard-tab" class="tab-content hidden px-4 py-4">
+            <!-- @COMPONENT: Leaderboard [top performing memes] -->
+            <div class="space-y-4">
+                
+                <!-- Top 3 Podium -->
+                <div class="bg-gradient-to-r from-samu-yellow/10 to-samu-orange/10 rounded-xl p-6 border border-samu-yellow/20">
+                    <h2 class="text-lg font-bold text-samu-gray mb-4 text-center">🏆 Top Performers</h2>
+                    
+                    <div class="grid grid-cols-3 gap-4">
+                        <!-- 2nd Place -->
+                        <div class="col-start-1 text-center" data-mock="true">
+                            <div class="w-12 h-12 bg-gray-300 rounded-full mx-auto mb-2 flex items-center justify-center">
+                                <span class="text-white font-bold">2</span>
+                            </div>
+                            <p class="text-xs font-semibold text-samu-gray">MoonHowler</p>
+                            <p class="text-xs text-samu-orange">1,456 votes</p>
+                        </div>
+                        
+                        <!-- 1st Place -->
+                        <div class="col-start-2 text-center" data-mock="true">
+                            <div class="w-16 h-16 bg-gradient-to-r from-samu-yellow to-samu-orange rounded-full mx-auto mb-2 flex items-center justify-center border-4 border-white shadow-lg">
+                                <span class="text-samu-gray font-bold text-lg">1</span>
+                            </div>
+                            <p class="text-sm font-bold text-samu-gray">DiamondPaws</p>
+                            <p class="text-sm text-samu-orange font-semibold">2,105 votes</p>
+                        </div>
+                        
+                        <!-- 3rd Place -->
+                        <div class="col-start-3 text-center" data-mock="true">
+                            <div class="w-12 h-12 bg-samu-brown rounded-full mx-auto mb-2 flex items-center justify-center">
+                                <span class="text-white font-bold">3</span>
+                            </div>
+                            <p class="text-xs font-semibold text-samu-gray">CryptoWolf97</p>
+                            <p class="text-xs text-samu-orange">1,234 votes</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Full Leaderboard -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+                    <div class="p-4 border-b border-gray-100">
+                        <h3 class="font-bold text-samu-gray">All Submissions</h3>
+                    </div>
+                    
+                    <!-- @MAP: leaderboard.map((entry, index) => ( -->
+                    <div class="divide-y divide-gray-100">
+                        
+                        <div class="p-4 flex items-center justify-between" data-mock="true">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-samu-gray text-white rounded-full flex items-center justify-center font-bold text-sm">4</div>
+                                <div>
+                                    <p class="font-semibold text-samu-gray text-sm" data-bind="entry.username">TokenHodler</p>
+                                    <p class="text-xs text-gray-500" data-bind="entry.caption">Diamond hands forever 💎</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-semibold text-samu-orange" data-bind="entry.votes">987 votes</p>
+                                <p class="text-xs text-gray-500">+23 today</p>
+                            </div>
+                        </div>
+
+                        <div class="p-4 flex items-center justify-between" data-mock="true">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-samu-gray text-white rounded-full flex items-center justify-center font-bold text-sm">5</div>
+                                <div>
+                                    <p class="font-semibold text-samu-gray text-sm" data-bind="entry.username">WolfPackLeader</p>
+                                    <p class="text-xs text-gray-500" data-bind="entry.caption">SAMU to the moon! 🚀</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-semibold text-samu-orange" data-bind="entry.votes">756 votes</p>
+                                <p class="text-xs text-gray-500">+15 today</p>
+                            </div>
+                        </div>
+
+                        <div class="p-4 flex items-center justify-between" data-mock="true">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-samu-gray text-white rounded-full flex items-center justify-center font-bold text-sm">6</div>
+                                <div>
+                                    <p class="font-semibold text-samu-gray text-sm" data-bind="entry.username">CryptoComedian</p>
+                                    <p class="text-xs text-gray-500" data-bind="entry.caption">When gas fees cost more than...</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-semibold text-samu-orange" data-bind="entry.votes">542 votes</p>
+                                <p class="text-xs text-gray-500">+8 today</p>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    <!-- @END_MAP )) -->
+                </div>
+            </div>
+            <!-- @END_COMPONENT: Leaderboard -->
+        </div>
+
+    </main>
+    <!-- @END_COMPONENT: TabContent -->
+
+    <!-- @COMPONENT: LoadingModal [blockchain transaction loading] -->
+    <div id="loading-modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-6 m-4 max-w-sm w-full text-center">
+            <div class="w-16 h-16 bg-gradient-to-r from-samu-yellow to-samu-orange rounded-full mx-auto mb-4 flex items-center justify-center animate-pulse">
+                <i class="fas fa-wolf-pack-battalion text-samu-gray text-2xl"></i>
+            </div>
+            <h3 class="text-lg font-bold text-samu-gray mb-2" data-bind="loadingTitle">Connecting Wallet...</h3>
+            <p class="text-sm text-gray-600 mb-4" data-bind="loadingMessage">Please approve the connection in your Phantom wallet</p>
+            <div class="flex justify-center">
+                <div class="animate-spin rounded-full h-8 w-8 border-4 border-samu-yellow border-t-samu-orange"></div>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: LoadingModal -->
+
+    <!-- @COMPONENT: VotingModal [vote confirmation modal] -->
+    <div id="voting-modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-6 m-4 max-w-sm w-full">
+            <h3 class="text-lg font-bold text-samu-gray mb-4 text-center">Cast Your Vote</h3>
+            
+            <div class="text-center mb-6">
+                <div class="w-20 h-20 bg-gradient-to-r from-samu-yellow to-samu-orange rounded-full mx-auto mb-4 flex items-center justify-center">
+                    <i class="fas fa-thumbs-up text-samu-gray text-2xl"></i>
+                </div>
+                <p class="text-sm text-gray-600">Your voting power: <span class="font-bold text-samu-orange" data-bind="user.votingPower" data-mock="true">2.5x</span></p>
+                <p class="text-xs text-gray-500 mt-1">Based on your SAMU tokens + NFT holdings</p>
+            </div>
+
+            <div class="flex space-x-3">
+                <button class="flex-1 bg-gray-100 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-200 transition-colors duration-200" data-event="click:cancelVote">
+                    Cancel
+                </button>
+                <button class="flex-1 bg-gradient-to-r from-samu-yellow to-samu-orange text-samu-gray py-3 rounded-lg font-semibold shadow-md hover:shadow-lg transition-all duration-200 active:scale-95" data-event="click:confirmVote">
+                    Vote Now
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: VotingModal -->
+
+    <script>
+        (function() {
+            // @STATE: walletConnected:boolean = false
+            // @STATE: currentTab:string = 'gallery'
+            // @STATE: isLoading:boolean = false
+            
+            // Mock wallet connection state
+            let walletConnected = false;
+            let currentTab = 'gallery';
+
+            // Tab switching functionality
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const tabName = this.getAttribute('data-tab');
+                    
+                    // Update active states
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.add('hidden'));
+                    
+                    this.classList.add('active');
+                    document.getElementById(tabName + '-tab').classList.remove('hidden');
+                    
+                    currentTab = tabName;
+                });
+            });
+
+            // Wallet connection mock
+            document.getElementById('connectWallet').addEventListener('click', function() {
+                if (!walletConnected) {
+                    // Show loading modal
+                    document.getElementById('loading-modal').classList.remove('hidden');
+                    
+                    // Simulate wallet connection delay
+                    setTimeout(() => {
+                        document.getElementById('loading-modal').classList.add('hidden');
+                        document.getElementById('walletInfo').classList.remove('hidden');
+                        this.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Connected';
+                        this.classList.remove('bg-gradient-to-r', 'from-samu-yellow', 'to-samu-orange');
+                        this.classList.add('bg-green-500', 'text-white');
+                        walletConnected = true;
+                        
+                        // Enable submit button if needed
+                        const submitBtn = document.getElementById('submit-meme');
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                        }
+                    }, 2000);
+                } else {
+                    // TODO: Implement wallet disconnection
+                    alert('Wallet disconnection functionality to be implemented');
+                }
+            });
+
+            // File upload preview
+            const uploadArea = document.getElementById('upload-area');
+            const fileInput = document.getElementById('meme-upload');
+            const imagePreview = document.getElementById('image-preview');
+            const previewImg = document.getElementById('preview-img');
+
+            uploadArea.addEventListener('click', () => fileInput.click());
+
+            fileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        previewImg.src = e.target.result;
+                        imagePreview.classList.remove('hidden');
+                        uploadArea.classList.add('hidden');
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Remove image preview
+            document.querySelector('[data-event="click:removeImage"]').addEventListener('click', function() {
+                imagePreview.classList.add('hidden');
+                uploadArea.classList.remove('hidden');
+                fileInput.value = '';
+            });
+
+            // Voting system mock
+            document.querySelectorAll('[data-event="click:voteForMeme"]').forEach(button => {
+                button.addEventListener('click', function() {
+                    if (!walletConnected) {
+                        alert('Please connect your wallet first!');
+                        return;
+                    }
+                    // Show voting modal
+                    document.getElementById('voting-modal').classList.remove('hidden');
+                });
+            });
+
+            // Voting modal handlers
+            document.querySelector('[data-event="click:cancelVote"]').addEventListener('click', function() {
+                document.getElementById('voting-modal').classList.add('hidden');
+            });
+
+            document.querySelector('[data-event="click:confirmVote"]').addEventListener('click', function() {
+                document.getElementById('voting-modal').classList.add('hidden');
+                // TODO: Implement actual voting logic with blockchain interaction
+                alert('Vote cast successfully! (Mock implementation)');
+            });
+
+            // Meme submission mock
+            document.getElementById('submit-meme').addEventListener('click', function() {
+                if (!walletConnected) {
+                    alert('Please connect your wallet first!');
+                    return;
+                }
+                
+                const caption = document.getElementById('meme-caption').value;
+                if (!fileInput.files[0] || !caption.trim()) {
+                    alert('Please upload an image and add a caption!');
+                    return;
+                }
+
+                // Show loading modal for submission
+                document.getElementById('loading-modal').classList.remove('hidden');
+                const loadingTitle = document.querySelector('[data-bind="loadingTitle"]');
+                const loadingMessage = document.querySelector('[data-bind="loadingMessage"]');
+                
+                loadingTitle.textContent = 'Submitting Meme...';
+                loadingMessage.textContent = 'Processing your submission and deducting 50 SAMU tokens';
+
+                setTimeout(() => {
+                    document.getElementById('loading-modal').classList.add('hidden');
+                    alert('Meme submitted successfully! Good luck in the contest! 🎉');
+                    // Reset form
+                    document.getElementById('meme-caption').value = '';
+                    imagePreview.classList.add('hidden');
+                    uploadArea.classList.remove('hidden');
+                    fileInput.value = '';
+                }, 3000);
+            });
+
+            // Tab styling
+            function updateTabStyles() {
+                tabButtons.forEach(btn => {
+                    if (btn.classList.contains('active')) {
+                        btn.classList.add('bg-white', 'text-samu-gray', 'shadow-sm');
+                        btn.classList.remove('text-gray-500');
+                    } else {
+                        btn.classList.remove('bg-white', 'text-samu-gray', 'shadow-sm');
+                        btn.classList.add('text-gray-500');
+                    }
+                });
+            }
+
+            // Initialize tab styles
+            updateTabStyles();
+
+            // Update tab styles on click
+            tabButtons.forEach(button => {
+                button.addEventListener('click', updateTabStyles);
+            });
+
+        })();
+    </script>
+</body>
+</html>

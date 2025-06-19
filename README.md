@@ -1,23 +1,77 @@
 # SAMU Meme Contest App
 
-A Web3 meme contest platform built with Solana blockchain integration, featuring token-weighted voting and merchandise rewards.
+Web3 밈 컨테스트 플랫폼 - Solana 블록체인과 팬텀 지갑 연동
 
-## Features
+## 기능
 
-- **Solana Integration**: Real Phantom wallet connection with SAMU token detection
-- **Mobile-First Design**: Responsive UI optimized for mobile devices
-- **Token-Weighted Voting**: Vote power based on SAMU token holdings
-- **Goods Shop**: Hall of Fame memes converted to purchasable merchandise
-- **Native Mobile App**: Capacitor-wrapped Android app with deep linking
+- 팬텀 지갑 연결 및 SAMU 토큰 잔액 조회
+- 밈 업로드 및 토큰 기반 투표
+- 상품 구매 시스템 (Hall of Fame)
+- 모바일 앱 지원 (Android/iOS)
 
-## Tech Stack
+## 모바일 앱 빌드
 
-- **Frontend**: React, TypeScript, Tailwind CSS, shadcn/ui
-- **Backend**: Express.js, Node.js
-- **Database**: PostgreSQL with Drizzle ORM
-- **Mobile**: Capacitor for native Android/iOS
-- **Blockchain**: Solana Web3.js, Phantom Wallet
-- **Build**: Vite, GitHub Actions
+### 빠른 빌드
+```bash
+# Linux/Mac
+./build-mobile.sh
+
+# Windows  
+build-mobile.bat
+```
+
+### 수동 빌드
+```bash
+npm install
+npm run build
+npx cap sync android
+cd android && ./gradlew assembleDebug
+```
+
+### APK 설치
+1. `android/app/build/outputs/apk/debug/app-debug.apk` 파일을 안드로이드 기기로 전송
+2. 안드로이드 설정에서 "알 수 없는 소스에서 앱 설치" 허용
+3. APK 파일 실행하여 설치
+
+## GitHub Actions 자동 빌드
+
+### 저장소 설정
+1. GitHub에서 새 저장소 생성
+2. `samu-mobile-project.tar.gz` 다운로드 및 압축 해제
+3. 파일들을 저장소에 업로드
+
+```bash
+git clone https://github.com/YOUR_USERNAME/YOUR_REPO.git
+cd YOUR_REPO
+tar -xzf samu-mobile-project.tar.gz
+cp -R samu-mobile-project/. .
+git add .
+git commit -m "SAMU mobile app"
+git push origin main
+```
+
+### APK 자동 생성
+- **푸시시 자동 빌드**: main 브랜치에 푸시하면 자동으로 APK 생성
+- **수동 빌드**: GitHub Actions 탭에서 "Run workflow" 클릭
+- **다운로드**: Actions > Artifacts 또는 Releases 탭에서 APK 다운로드
+
+### 로컬 빌드 (선택사항)
+```bash
+# 빠른 빌드
+./build-mobile.sh  # Linux/Mac
+build-mobile.bat   # Windows
+
+# 수동 빌드  
+npm install
+npm run build
+npx cap sync android
+cd android && ./gradlew assembleDebug
+```
+
+## 요구사항
+- GitHub 계정
+- Node.js 20.x (로컬 빌드시)
+- Java 17 (로컬 빌드시)
 
 ## Quick Start
 
